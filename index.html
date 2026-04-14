@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Helpdesk — Sistemas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810;--s1:#0c0f1a;--s2:#111420;--s3:#181c2e;--s4:#1f2438;--s5:#252b42;
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.11);--bd3:rgba(255,255,255,0.2);
+  --t1:#f0f2ff;--t2:#8b91b0;--t3:#4a5070;--t4:#2a2f48;
+  --ac:#4f7fff;--ac2:#2952d4;--ac3:rgba(79,127,255,0.12);--ac4:rgba(79,127,255,0.06);
+  --green:#10b981;--gbg:rgba(16,185,129,0.1);--gbg2:rgba(16,185,129,0.06);
+  --amber:#f59e0b;--abg:rgba(245,158,11,0.1);
+  --red:#ef4444;--rbg:rgba(239,68,68,0.1);
+  --purple:#a78bfa;--pbg:rgba(167,139,250,0.1);
+  --cyan:#06b6d4;--cbg:rgba(6,182,212,0.1);
+  --r:10px;--rs:6px;--rl:14px;
+  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:3px}
+
+/* ── AUTH ─────────────────────────────────────────────── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.auth-wrap{width:100%;max-width:440px;padding:20px 0}
+.auth-logo{text-align:center;margin-bottom:36px}
+.auth-logo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--ac3);border:1px solid rgba(79,127,255,.2);border-radius:20px;padding:5px 14px;font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.1em;margin-bottom:14px}
+.auth-logo-badge span{width:6px;height:6px;border-radius:50%;background:var(--ac);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.auth-logo-name{font-size:24px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.auth-logo-sub{font-size:12px;color:var(--t2)}
+.auth-tabs{display:flex;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:4px;margin-bottom:20px;gap:4px}
+.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border-radius:var(--rs);transition:all .2s}
+.auth-tab.active{background:var(--s4);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.auth-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:28px}
+.auth-card-title{font-size:16px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
+.auth-card-sub{font-size:12px;color:var(--t2);margin-bottom:22px}
+.af{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.af label{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.1em}
+.af input,.af select{width:100%;padding:10px 13px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t1);font-family:var(--font);font-size:13px;transition:border-color .15s,box-shadow .15s}
+.af input:focus,.af select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac3)}
+.af select option{background:var(--s2)}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-full{width:100%;padding:12px;border-radius:var(--rs);border:none;background:var(--ac);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:6px;letter-spacing:.01em}
+.btn-full:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-full:active{transform:translateY(0)}
+.btn-full.ghost{background:transparent;border:1px solid var(--bd2);color:var(--t2)}
+.btn-full.ghost:hover{background:var(--s2);color:var(--t1)}
+.auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:18px;font-family:var(--mono)}
+.auth-msg.err{color:var(--red)}.auth-msg.ok{color:var(--green)}
+.auth-link{font-size:12px;color:var(--ac);cursor:pointer;text-align:center;display:block;margin-top:12px}
+.auth-link:hover{text-decoration:underline}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--t3);font-size:11px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bd)}
+.contact-toggle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.contact-opt{padding:8px;border:1px solid var(--bd2);border-radius:var(--rs);cursor:pointer;text-align:center;font-size:11px;font-weight:600;color:var(--t2);transition:all .15s;user-select:none}
+.contact-opt:hover{border-color:var(--bd3);color:var(--t1)}
+.contact-opt.active.tg{border-color:#2481cc;background:rgba(36,129,204,.12);color:#7ecef4}
+.contact-opt.active.wa{border-color:#25D366;background:rgba(37,211,102,.1);color:#25D366}
+.contact-opt.active.none{border-color:var(--t3);background:rgba(74,80,112,.1);color:var(--t3)}
+.pass-strength{height:3px;border-radius:2px;margin-top:5px;transition:all .3s;background:var(--s3)}
+.pass-strength.w1{background:var(--red);width:25%}
+.pass-strength.w2{background:var(--amber);width:50%}
+.pass-strength.w3{background:var(--ac);width:75%}
+.pass-strength.w4{background:var(--green);width:100%}
+.pass-hint{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:3px}
+.pin-row{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.pin-row input{text-align:center;font-family:var(--mono);font-size:16px;font-weight:600;padding:10px 0!important}
+
+/* ── MODAL ─────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--rl);padding:28px;width:100%;max-width:480px;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
+.modal-sub{font-size:12px;color:var(--t2);margin-bottom:20px}
+.modal-footer{display:flex;gap:8px;margin-top:18px}
+.modal-close{position:absolute;right:18px;top:18px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;line-height:1}
+
+/* ── APP SHELL ────────────────────────────────────────── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.show{display:flex}
+.topbar{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-logo{font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.1em;font-weight:500}
+.tb-sep{width:1px;height:20px;background:var(--bd2)}
+.tb-role{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
+.tb-role.it{background:var(--ac3);color:var(--ac)}
+.tb-role.user{background:var(--gbg);color:var(--green)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-avatar{width:30px;height:30px;border-radius:50%;background:var(--ac3);border:1px solid rgba(79,127,255,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--ac);cursor:pointer}
+.tb-name{font-size:12px;color:var(--t2)}
+.tb-name span{color:var(--t1);font-weight:500}
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:218px;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-top{flex:1;overflow-y:auto;padding-bottom:8px}
+.nav-sec{padding:16px 16px 4px;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.15em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:var(--t2);font-size:12px;border-left:2px solid transparent;transition:all .15s;user-select:none;position:relative}
+.nav-item:hover{background:var(--s2);color:var(--t1)}
+.nav-item.active{background:var(--s2);color:var(--ac);border-left-color:var(--ac)}
+.nav-item svg{flex-shrink:0;width:15px;height:15px;opacity:.6}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:10px;display:none;font-weight:600}
+.nav-badge.show{display:inline}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--bd)}
+.sb-user-card{background:var(--s2);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--ac3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--ac);flex-shrink:0}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-role{font-size:10px;color:var(--t2)}
+.sb-logout{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;transition:color .15s}
+.sb-logout:hover{color:var(--red)}
+
+/* ── MAIN ─────────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto;padding:24px 28px}
+.panel{display:none;animation:fadeIn .2s ease}.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.page-hdr{margin-bottom:24px}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--t2)}
+
+/* ── METRICS ──────────────────────────────────────────── */
+.metrics{display:grid;gap:12px;margin-bottom:20px}
+.metrics.c4{grid-template-columns:repeat(4,1fr)}
+.metrics.c3{grid-template-columns:repeat(3,1fr)}
+.metrics.c5{grid-template-columns:repeat(5,1fr)}
+.metric{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden;cursor:default;transition:border-color .2s}
+.metric:hover{border-color:var(--bd2)}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.m-blue::after{background:var(--ac)}.m-red::after{background:var(--red)}
+.m-amber::after{background:var(--amber)}.m-green::after{background:var(--green)}
+.m-purple::after{background:var(--purple)}.m-cyan::after{background:var(--cyan)}
+.metric .val{font-size:28px;font-weight:700;font-family:var(--mono);letter-spacing:-.04em;line-height:1;margin-bottom:5px}
+.metric .lbl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.metric .trend{font-size:10px;color:var(--t3);margin-top:4px;font-family:var(--mono)}
+.m-blue .val{color:var(--ac)}.m-red .val{color:var(--red)}
+.m-amber .val{color:var(--amber)}.m-green .val{color:var(--green)}
+.m-purple .val{color:var(--purple)}.m-cyan .val{color:var(--cyan)}
+
+/* ── CARDS ─────────────────────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.12em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.gap-b{margin-bottom:16px}
+
+/* ── BARS ──────────────────────────────────────────────── */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-lbl{width:100px;font-size:11px;color:var(--t2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.16,1,.3,1)}
+.bar-val{width:22px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--t2)}
+
+/* ── TABLE ─────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;border-bottom:1px solid var(--bd);white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--s2);cursor:pointer}
+.id-cell{font-family:var(--mono);color:var(--ac);font-size:11px;font-weight:500}
+.truncate{max-width:160px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* ── BADGES ────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono);white-space:nowrap;letter-spacing:.03em}
+.b-red{background:var(--rbg);color:var(--red)}
+.b-amber{background:var(--abg);color:var(--amber)}
+.b-blue{background:var(--ac3);color:var(--ac)}
+.b-green{background:var(--gbg);color:var(--green)}
+.b-purple{background:var(--pbg);color:var(--purple)}
+.b-cyan{background:var(--cbg);color:var(--cyan)}
+.b-gray{background:rgba(255,255,255,.05);color:var(--t2)}
+
+/* ── FORM ──────────────────────────────────────────────── */
+.fg{display:grid;gap:14px}.fg2{grid-template-columns:1fr 1fr}.fg1{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em}
+.field input,.field select,.field textarea{width:100%;padding:10px 13px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t1);font-family:var(--font);font-size:13px;transition:border-color .15s,box-shadow .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac3)}
+.field textarea{min-height:80px;resize:vertical;line-height:1.6}
+.field select option{background:var(--s2)}
+.field input[readonly]{color:var(--t2);cursor:default}
+.field-hint{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:3px}
+
+/* ── PRIO BOX ──────────────────────────────────────────── */
+.prio-box{padding:10px 13px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);font-family:var(--mono);font-size:12px;font-weight:600;transition:all .2s}
+.prio-box.crit{color:var(--red);border-color:rgba(239,68,68,.3);background:var(--rbg)}
+.prio-box.alto{color:var(--amber);border-color:rgba(245,158,11,.3);background:var(--abg)}
+.prio-box.medio{color:var(--ac);border-color:rgba(79,127,255,.3);background:var(--ac3)}
+.prio-box.bajo{color:var(--green);border-color:rgba(16,185,129,.3);background:var(--gbg)}
+
+/* ── FILE DROP ─────────────────────────────────────────── */
+.file-drop{border:1px dashed var(--bd2);border-radius:var(--rs);padding:18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--s2)}
+.file-drop:hover,.file-drop.over{border-color:var(--ac);background:var(--ac4)}
+.file-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-drop-ico{font-size:22px;margin-bottom:6px}
+.file-drop-txt{font-size:12px;color:var(--t2)}
+.file-drop-hint{font-size:11px;color:var(--t3);margin-top:2px}
+.file-prev{display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);margin-top:8px;font-size:12px}
+.file-prev.show{display:flex}
+.file-prev-rm{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;flex-shrink:0;padding:0 3px;transition:color .15s}
+.file-prev-rm:hover{color:var(--red)}
+
+/* ── DETAIL PANEL ──────────────────────────────────────── */
+.det-wrap{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;margin-top:16px;display:none;animation:fadeUp .2s ease}
+.det-wrap.show{display:block}
+.det-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.det-id{font-family:var(--mono);font-size:11px;color:var(--ac);margin-bottom:4px;font-weight:500}
+.det-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.det-f .det-fl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.det-f .det-fv{font-size:12px}
+.det-desc-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.det-desc-val{font-size:13px;color:var(--t2);line-height:1.6}
+.det-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tg-pre{background:#040d1a;border:1px solid rgba(36,129,204,.2);border-radius:var(--rs);padding:14px 16px;font-family:var(--mono);font-size:11px;color:#7ecef4;line-height:1.8;white-space:pre-wrap;display:none;margin-top:12px}
+.tg-pre.show{display:block}
+
+/* ── TIMELINE ──────────────────────────────────────────── */
+.tl{padding-left:18px}
+.tl-item{position:relative;padding-bottom:14px;padding-left:14px}
+.tl-item::before{content:'';position:absolute;left:-1px;top:7px;bottom:0;width:1px;background:var(--bd2)}
+.tl-item:last-child::before{display:none}
+.tl-dot{position:absolute;left:-5px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--s4);border:2px solid var(--bd2)}
+.tl-dot.done{background:var(--green);border-color:var(--green)}
+.tl-dot.act{background:var(--ac);border-color:var(--ac)}
+.tl-dot.red{background:var(--red);border-color:var(--red)}
+.tl-txt{font-size:12px;color:var(--t1)}
+.tl-time{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:1px}
+
+/* ── CHECKLIST ─────────────────────────────────────────── */
+.ck-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ck-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--s2)}
+.ck-item:hover{border-color:var(--bd2);background:var(--s3)}
+.ck-item.done{background:var(--gbg2);border-color:rgba(16,185,129,.25)}
+.ck-item input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer;width:14px;height:14px}
+.ck-g{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;font-weight:600}
+.ck-t{font-size:12px;color:var(--t2);line-height:1.5}
+.ck-item.done .ck-t{color:var(--t1)}
+.ck-done-bar{display:none;margin-top:14px;padding:12px 16px;background:var(--gbg);border:1px solid rgba(16,185,129,.25);border-radius:var(--rs);font-size:13px;color:var(--green);font-weight:500}
+.ck-done-bar.show{display:flex;align-items:center;gap:8px}
+
+/* ── NOTIF ROWS ────────────────────────────────────────── */
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd)}
+.notif-row:last-child{border-bottom:none}
+.notif-info h4{font-size:13px;font-weight:500;margin-bottom:2px}
+.notif-info p{font-size:11px;color:var(--t2)}
+
+/* ── PROFILE CARD ──────────────────────────────────────── */
+.prof-card{background:var(--s2);border-radius:var(--r);padding:20px;display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.prof-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.prof-info{flex:1}
+.prof-name{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+.prof-meta{font-size:12px;color:var(--t2)}
+.prof-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* ── USER MGMT ─────────────────────────────────────────── */
+.user-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;transition:border-color .15s}
+.user-card:hover{border-color:var(--bd2)}
+.user-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:500;margin-bottom:1px}
+.user-meta{font-size:11px;color:var(--t2)}
+.user-actions{display:flex;gap:6px;align-items:center}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}.dot-red{background:var(--red)}.dot-amber{background:var(--amber)}
+
+/* ── MISC ──────────────────────────────────────────────── */
+.divider{height:1px;background:var(--bd);margin:16px 0}
+.empty-state{padding:40px;text-align:center}
+.empty-state .ico{font-size:32px;margin-bottom:10px;opacity:.3}
+.empty-state p{font-size:13px;color:var(--t3)}
+.msg-bar{padding:10px 14px;border-radius:var(--rs);font-size:12px;font-family:var(--mono);margin-top:10px;display:none}
+.msg-bar.show{display:block}
+.msg-bar.ok{background:var(--gbg);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.msg-bar.err{background:var(--rbg);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.msg-bar.info{background:var(--ac3);color:var(--ac);border:1px solid rgba(79,127,255,.2)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--bd2);border-left:3px solid var(--ac);border-radius:var(--rs);padding:11px 16px;font-size:13px;z-index:9999;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;max-width:340px;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:none}
+.toast.ok{border-left-color:var(--green)}.toast.err{border-left-color:var(--red)}.toast.info{border-left-color:var(--ac)}
+.section-gap{margin-bottom:18px}
+.toggle-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle-switch input{display:none}
+.toggle-slider{position:absolute;inset:0;background:var(--s4);border-radius:10px;cursor:pointer;transition:background .2s}
+.toggle-slider:before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;left:3px;top:3px;transition:transform .2s}
+.toggle-switch input:checked+.toggle-slider{background:var(--green)}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(16px)}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);padding:7px 12px}
+.search-bar input{flex:1;background:none;border:none;color:var(--t1);font-family:var(--font);font-size:13px;outline:none}
+.search-bar input::placeholder{color:var(--t3)}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ AUTH ════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div><div class="auth-logo-badge"><span></span> SISTEMAS IT</div></div>
+      <div class="auth-logo-name">IT Helpdesk</div>
+      <div class="auth-logo-sub">Departamento de Tecnología — Alberth Crespo</div>
+    </div>
+    <div class="auth-tabs" id="auth-tabs">
+      <button class="auth-tab active" onclick="authTab('login',this)">Iniciar sesión</button>
+      <button class="auth-tab" onclick="authTab('register',this)">Crear cuenta</button>
+      <button class="auth-tab" onclick="authTab('recover',this)">Recuperar</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="auth-login" class="auth-card">
+      <div class="auth-card-title">Bienvenido de vuelta</div>
+      <div class="auth-card-sub">Ingresa con tu cuenta registrada</div>
+      <div class="af"><label>Correo electrónico</label><input id="li-email" type="email" placeholder="tucorreo@empresa.com" autocomplete="email"></div>
+      <div class="af">
+        <label>Contraseña</label>
+        <div style="position:relative">
+          <input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px">
+          <button onclick="togglePass('li-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px">👁</button>
+        </div>
+      </div>
+      <button class="btn-full" onclick="doLogin()">Ingresar al sistema</button>
+      <div class="auth-msg" id="li-msg"></div>
+      <span class="auth-link" onclick="authTab('recover',document.querySelectorAll('.auth-tab')[2])">¿Olvidaste tu contraseña?</span>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="auth-register" class="auth-card" style="display:none">
+      <div class="auth-card-title">Crear cuenta nueva</div>
+      <div class="auth-card-sub">Completa tu información para acceder al sistema</div>
+      <div class="af af-row">
+        <div><label>Nombre completo *</label><input id="rg-name" type="text" placeholder="Ej: Natasha Paz"></div>
+        <div><label>Área / Departamento *</label>
+          <select id="rg-area">
+            <option value="">— Seleccione —</option>
+            <option>Inventario</option><option>Piso de Ventas</option><option>Compras</option>
+            <option>Administración</option><option>Tesorería</option><option>Importaciones</option>
+            <option>Cocina</option><option>Barra</option><option>Seguridad</option><option>Gerencia</option>
+          </select>
+        </div>
+      </div>
+      <div class="af"><label>Correo electrónico *</label><input id="rg-email" type="email" placeholder="tucorreo@empresa.com"></div>
+      <div class="af">
+        <label>Contraseña * (mínimo 6 caracteres)</label>
+        <div style="position:relative">
+          <input id="rg-pass" type="password" placeholder="Crea una contraseña segura" oninput="checkPass(this.value)" style="padding-right:40px">
+          <button onclick="togglePass('rg-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px">👁</button>
+        </div>
+        <div class="pass-strength" id="pass-str"></div>
+        <div class="pass-hint" id="pass-hint"></div>
+      </div>
+      <div class="af">
+        <label>Notificaciones — método preferido</label>
+        <div class="contact-toggle">
+          <div class="contact-opt tg active" onclick="selContact('tg',this)">Telegram</div>
+          <div class="contact-opt wa" onclick="selContact('wa',this)">WhatsApp</div>
+          <div class="contact-opt none" onclick="selContact('none',this)">Sin notif.</div>
+        </div>
+        <input id="rg-contact" type="text" placeholder="Chat ID de Telegram o número (+58...)">
+        <div class="pass-hint" id="contact-hint" style="color:var(--t3)">Necesario para recibir actualizaciones de tus tickets</div>
+      </div>
+      <button class="btn-full" onclick="doRegister()">Crear mi cuenta</button>
+      <div class="auth-msg" id="rg-msg"></div>
+    </div>
+
+    <!-- RECOVER -->
+    <div id="auth-recover" class="auth-card" style="display:none">
+      <div class="auth-card-title">Recuperar contraseña</div>
+      <div class="auth-card-sub">Ingresa tu correo y te mostraremos cómo restablecer tu acceso</div>
+      <div id="rec-step1">
+        <div class="af"><label>Correo electrónico registrado</label><input id="rec-email" type="email" placeholder="tucorreo@empresa.com"></div>
+        <button class="btn-full" onclick="doRecover()">Buscar mi cuenta</button>
+        <div class="auth-msg" id="rec-msg"></div>
+      </div>
+      <div id="rec-step2" style="display:none">
+        <div style="background:var(--s2);border-radius:var(--rs);padding:14px;margin-bottom:16px;font-size:12px;color:var(--t2);border:1px solid var(--bd2)">
+          <div style="color:var(--green);font-weight:600;margin-bottom:4px">✓ Cuenta encontrada</div>
+          <div>Ingresa tu nueva contraseña para continuar</div>
+        </div>
+        <div class="af">
+          <label>Nueva contraseña *</label>
+          <input id="rec-newpass" type="password" placeholder="Mínimo 6 caracteres" oninput="checkPass(this.value,'rec-str')">
+          <div class="pass-strength" id="rec-str"></div>
+        </div>
+        <div class="af"><label>Confirmar contraseña *</label><input id="rec-confpass" type="password" placeholder="Repite la contraseña"></div>
+        <button class="btn-full" onclick="doResetPass()">Restablecer contraseña</button>
+        <div class="auth-msg" id="rec-msg2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ APP ════════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">IT·HELPDESK</div>
+      <div class="tb-sep"></div>
+      <div class="tb-role" id="tb-role">—</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-name">Hola, <span id="tb-uname">—</span></div>
+      <div class="tb-avatar" id="tb-avatar" onclick="goTo('perfil',document.getElementById('ni-perfil'))">AC</div>
+      <button class="btn-sm danger" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="nav-sec" style="margin-top:8px">Principal</div>
+        <div class="nav-item active" id="ni-dash" onclick="goTo('dash',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="1.5"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" id="ni-ticket" onclick="goTo('ticket',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/></svg>
+          Nuevo ticket
+        </div>
+
+        <!-- IT ONLY -->
+        <div class="nav-sec it-only">Gestión IT</div>
+        <div class="nav-item it-only" id="ni-bit" onclick="goTo('bitacora',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Bitácora
+          <span class="nav-badge" id="nb-open">0</span>
+        </div>
+        <div class="nav-item it-only" id="ni-users" onclick="goTo('usuarios',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zm14 2v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Usuarios
+          <span class="nav-badge" id="nb-users" style="background:var(--gbg);color:var(--green)">0</span>
+        </div>
+        <div class="nav-item it-only" id="ni-ck" onclick="goTo('checklist',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Checklist
+        </div>
+        <div class="nav-item it-only" id="ni-tg" onclick="goTo('config',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke-width="1.5"/></svg>
+          Configuración
+        </div>
+
+        <!-- USER ONLY -->
+        <div class="nav-sec user-only">Mis solicitudes</div>
+        <div class="nav-item user-only" id="ni-mine" onclick="goTo('mistickets',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Mis tickets
+          <span class="nav-badge" id="nb-mine">0</span>
+        </div>
+
+        <!-- SHARED -->
+        <div class="nav-sec">Cuenta</div>
+        <div class="nav-item" id="ni-perfil" onclick="goTo('perfil',this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Mi perfil
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sb-user-card">
+          <div class="sb-avatar" id="sb-avatar">?</div>
+          <div class="sb-info">
+            <div class="sb-name" id="sb-name">—</div>
+            <div class="sb-role" id="sb-role">—</div>
+          </div>
+          <button class="sb-logout" onclick="doLogout()" title="Cerrar sesión">✕</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div class="panel active" id="p-dash">
+        <div class="page-hdr" style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="page-title" id="dash-greet">Dashboard</div>
+            <div class="page-sub" id="dash-sub">Cargando...</div>
+          </div>
+          <div style="display:flex;gap:8px" id="dash-it-btns">
+            <button class="btn-sm tg" onclick="envResumen()">Enviar resumen</button>
+            <button class="btn-sm primary" onclick="goTo('ticket',document.getElementById('ni-ticket'))">+ Nuevo ticket</button>
+          </div>
+        </div>
+        <div class="metrics c4" id="it-metrics">
+          <div class="metric m-blue"><div class="val" id="dm-tot">0</div><div class="lbl">Total tickets</div></div>
+          <div class="metric m-red"><div class="val" id="dm-open">0</div><div class="lbl">Abiertos</div></div>
+          <div class="metric m-amber"><div class="val" id="dm-crit">0</div><div class="lbl">Críticos activos</div></div>
+          <div class="metric m-green"><div class="val" id="dm-res">0</div><div class="lbl">Resueltos</div></div>
+        </div>
+        <div class="metrics c3" id="user-metrics" style="display:none">
+          <div class="metric m-blue"><div class="val" id="um-tot">0</div><div class="lbl">Mis tickets</div></div>
+          <div class="metric m-amber"><div class="val" id="um-pend">0</div><div class="lbl">En proceso</div></div>
+          <div class="metric m-green"><div class="val" id="um-res">0</div><div class="lbl">Resueltos</div></div>
+        </div>
+        <div class="grid2 gap-b" id="it-charts">
+          <div class="card"><div class="card-hdr"><span class="card-title">Tickets por área</span></div><div id="ch-area"></div></div>
+          <div class="card"><div class="card-hdr"><span class="card-title">Tickets por prioridad</span></div><div id="ch-prio"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-title" id="recent-lbl">Últimas incidencias</span>
+            <div style="display:flex;gap:6px" id="dash-tbl-actions"></div>
+          </div>
+          <div id="dash-recent"></div>
+        </div>
+      </div>
+
+      <!-- ═══ NUEVO TICKET ═══ -->
+      <div class="panel" id="p-ticket">
+        <div class="page-hdr">
+          <div class="page-title">Nuevo ticket de soporte</div>
+          <div class="page-sub">El sistema asignará la prioridad automáticamente según el problema reportado</div>
+        </div>
+        <div class="card">
+          <div class="fg fg2 section-gap">
+            <div class="field"><label>Área que reporta</label><input id="f-area" type="text" readonly></div>
+            <div class="field"><label>Nombre del usuario</label><input id="f-user" type="text" readonly></div>
+          </div>
+          <div class="fg fg2 section-gap">
+            <div class="field">
+              <label>Sistema / Área afectada *</label>
+              <select id="f-sistema" onchange="calcPrio()">
+                <option value="">— Seleccione el sistema afectado —</option>
+                <option value="stellar-caja">Stellar — Caja / POS (facturación)</option>
+                <option value="stellar-inv">Stellar — Inventario / existencias</option>
+                <option value="stellar-compras">Stellar — Módulo de compras</option>
+                <option value="sql">SQL Server — Reporte / base de datos</option>
+                <option value="red">Red / WiFi / Conectividad</option>
+                <option value="proxmox">Proxmox / Servidores virtuales</option>
+                <option value="impresora">Impresora / Comandas de cocina</option>
+                <option value="banesco">Punto de venta — Banesco</option>
+                <option value="portal">Portal bancario / Megasoft / Galac</option>
+                <option value="shopify">Shopify / E-Commerce / Tienda online</option>
+                <option value="drive">Correo / Google Drive / Office</option>
+                <option value="hardware">Equipo / Hardware / Periférico</option>
+                <option value="otro">Otro sistema o solicitud general</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Prioridad (asignada automáticamente)</label>
+              <div class="prio-box" id="prio-disp">— Selecciona el sistema arriba —</div>
+              <div class="field-hint" id="prio-reason"></div>
+            </div>
+          </div>
+          <div class="fg fg1 section-gap">
+            <div class="field">
+              <label>Descripción del problema *</label>
+              <textarea id="f-desc" placeholder="Describe con detalle qué ocurrió, desde cuándo y cómo está afectando tu trabajo. Cuanto más detalle, más rápido podremos ayudarte."></textarea>
+            </div>
+          </div>
+          <div class="fg fg2 section-gap">
+            <div class="field">
+              <label>Nivel de impacto</label>
+              <select id="f-impacto">
+                <option>Solo yo</option><option>Todo mi equipo / área</option>
+                <option>Múltiples áreas</option><option>Toda la operación</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Recibirás notificaciones por</label>
+              <input id="f-notif-disp" type="text" readonly style="color:var(--t2)">
+            </div>
+          </div>
+          <div class="fg fg1 section-gap">
+            <div class="field">
+              <label>Evidencia adjunta (opcional)</label>
+              <div class="file-drop" id="file-drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(event)">
+                <input type="file" id="f-file" accept="image/*,.pdf,.txt,.log,.csv" onchange="handleFile(this.files[0])">
+                <div class="file-drop-ico">📎</div>
+                <div class="file-drop-txt">Arrastra un archivo o haz clic para seleccionar</div>
+                <div class="file-drop-hint">Capturas, PDFs, logs — máx. 5MB</div>
+              </div>
+              <div class="file-prev" id="file-prev">
+                <span style="font-size:18px">📄</span>
+                <span style="flex:1;color:var(--t2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis" id="f-fname"></span>
+                <button class="file-prev-rm" onclick="removeFile()">✕</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-sm primary" onclick="crearTicket()">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/></svg>
+              Generar ticket
+            </button>
+            <button class="btn-sm" onclick="limpiarForm()">Limpiar formulario</button>
+          </div>
+          <div class="msg-bar" id="f-msg"></div>
+        </div>
+        <div class="tg-pre" id="tg-prev"></div>
+      </div>
+
+      <!-- ═══ BITÁCORA (IT) ═══ -->
+      <div class="panel" id="p-bitacora">
+        <div class="page-hdr" style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="page-title">Bitácora de incidencias</div>
+            <div class="page-sub">Gestión y seguimiento completo de todos los tickets</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <div class="search-bar" style="width:200px">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--t3);flex-shrink:0"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
+              <input id="bit-search" type="text" placeholder="Buscar..." oninput="renderBit()">
+            </div>
+            <select id="fil-est" onchange="renderBit()" style="font-size:11px;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t1)">
+              <option value="">Todos los estados</option>
+              <option>Abierto</option><option>En proceso</option><option>Resuelto</option><option>Escalado</option>
+            </select>
+            <select id="fil-pri" onchange="renderBit()" style="font-size:11px;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t1)">
+              <option value="">Todas las prioridades</option>
+              <option>Critico</option><option>Alto</option><option>Medio</option><option>Bajo</option>
+            </select>
+            <button class="btn-sm tg" onclick="envResumen()">Enviar resumen</button>
+          </div>
+        </div>
+        <div class="card gap-b">
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Usuario / Área</th><th>Sistema</th><th>Descripción</th><th>Prioridad</th><th>Estado</th><th>Fecha</th><th>Arch.</th></tr></thead>
+              <tbody id="tbl-bit"></tbody>
+            </table>
+            <div id="bit-empty" class="empty-state"><div class="ico">📋</div><p>Sin tickets registrados</p></div>
+          </div>
+        </div>
+        <div class="det-wrap" id="det-panel">
+          <div class="det-top">
+            <div><div class="det-id" id="det-id"></div><div class="det-name" id="det-name"></div></div>
+            <button class="btn-sm" onclick="closeDet()">✕ Cerrar</button>
+          </div>
+          <div class="det-grid" id="det-grid"></div>
+          <div class="divider"></div>
+          <div style="margin-bottom:16px">
+            <div class="det-desc-lbl">Descripción del problema</div>
+            <div class="det-desc-val" id="det-desc"></div>
+          </div>
+          <div id="det-file-wrap" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">Evidencia adjunta</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ac)">📎 <span id="det-fname"></span></div>
+          </div>
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Cambiar estado — se notificará automáticamente al usuario</div>
+          <div class="det-actions" id="det-actions"></div>
+          <div id="det-sol-wrap" style="margin-top:12px"></div>
+          <div class="tg-pre" id="det-tg-pre"></div>
+        </div>
+      </div>
+
+      <!-- ═══ USUARIOS (IT) ═══ -->
+      <div class="panel" id="p-usuarios">
+        <div class="page-hdr" style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="page-title">Gestión de usuarios</div>
+            <div class="page-sub">Usuarios registrados en el sistema</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="search-bar" style="width:200px">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--t3);flex-shrink:0"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
+              <input id="usr-search" type="text" placeholder="Buscar usuario..." oninput="renderUsers()">
+            </div>
+            <select id="usr-filter-area" onchange="renderUsers()" style="font-size:11px;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t1)">
+              <option value="">Todas las áreas</option>
+              <option>Inventario</option><option>Piso de Ventas</option><option>Compras</option>
+              <option>Administración</option><option>Tesorería</option><option>Importaciones</option>
+              <option>Cocina</option><option>Barra</option><option>Seguridad</option><option>Gerencia</option>
+            </select>
+          </div>
+        </div>
+        <div class="metrics c4 gap-b" id="users-metrics">
+          <div class="metric m-blue"><div class="val" id="um-count">0</div><div class="lbl">Registrados</div></div>
+          <div class="metric m-green"><div class="val" id="um-activos">0</div><div class="lbl">Con tickets</div></div>
+          <div class="metric m-amber"><div class="val" id="um-tg">0</div><div class="lbl">Usan Telegram</div></div>
+          <div class="metric m-cyan"><div class="val" id="um-wa">0</div><div class="lbl">Usan WhatsApp</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Directorio de usuarios</span><span class="badge b-blue" id="users-count-lbl">0 usuarios</span></div>
+          <div id="users-list"></div>
+        </div>
+        <div class="det-wrap" id="user-det-panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div class="det-name" id="udet-name"></div>
+            <button class="btn-sm" onclick="document.getElementById('user-det-panel').classList.remove('show')">✕</button>
+          </div>
+          <div class="det-grid" id="udet-grid"></div>
+          <div class="divider"></div>
+          <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Tickets del usuario</div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ID</th><th>Sistema</th><th>Prioridad</th><th>Estado</th><th>Fecha</th></tr></thead><tbody id="udet-tbl"></tbody></table>
+          <div id="udet-empty" class="empty-state" style="padding:20px"><p>Sin tickets</p></div></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="udet-actions"></div>
+        </div>
+      </div>
+
+      <!-- ═══ MIS TICKETS (User) ═══ -->
+      <div class="panel" id="p-mistickets">
+        <div class="page-hdr">
+          <div class="page-title">Mis solicitudes</div>
+          <div class="page-sub">Seguimiento de todos tus tickets enviados a IT</div>
+        </div>
+        <div class="metrics c3 gap-b" id="my-metrics">
+          <div class="metric m-blue"><div class="val" id="my-tot">0</div><div class="lbl">Total enviados</div></div>
+          <div class="metric m-amber"><div class="val" id="my-pend">0</div><div class="lbl">En proceso</div></div>
+          <div class="metric m-green"><div class="val" id="my-res">0</div><div class="lbl">Resueltos</div></div>
+        </div>
+        <div class="card gap-b">
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Sistema</th><th>Descripción</th><th>Prioridad</th><th>Estado</th><th>Fecha</th></tr></thead>
+              <tbody id="my-tbl"></tbody>
+            </table>
+            <div id="my-empty" class="empty-state"><div class="ico">📭</div><p>No tienes tickets enviados aún. Usa "Nuevo ticket" para reportar un problema.</p></div>
+          </div>
+        </div>
+        <div class="det-wrap" id="my-det">
+          <div class="det-top">
+            <div><div class="det-id" id="my-det-id"></div><div class="det-name" id="my-det-name"></div></div>
+            <button class="btn-sm" onclick="document.getElementById('my-det').classList.remove('show')">✕</button>
+          </div>
+          <div class="det-grid" id="my-det-grid"></div>
+          <div class="divider"></div>
+          <div style="margin-bottom:16px">
+            <div class="det-desc-lbl">Descripción</div>
+            <div class="det-desc-val" id="my-det-desc"></div>
+          </div>
+          <div id="my-det-sol" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;font-weight:700">Solución aplicada por IT</div>
+            <div style="background:var(--gbg2);border:1px solid rgba(16,185,129,.2);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--t1)" id="my-det-sol-txt"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Historial del ticket</div>
+          <div class="tl" id="my-tl"></div>
+        </div>
+      </div>
+
+      <!-- ═══ CHECKLIST (IT) ═══ -->
+      <div class="panel" id="p-checklist">
+        <div class="page-hdr" style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="page-title">Checklist operativo</div>
+            <div class="page-sub">Verificación diaria — 08:00 AM antes de la apertura</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-family:var(--mono);font-size:13px;color:var(--t2)" id="ck-prog">0 / 8</span>
+            <button class="btn-sm tg" onclick="envCk()">Enviar a Telegram</button>
+            <button class="btn-sm" onclick="resetCk()">Reiniciar</button>
+          </div>
+        </div>
+        <div class="card gap-b">
+          <div class="ck-grid" id="ck-grid"></div>
+          <div class="ck-done-bar" id="ck-done">
+            <span style="font-size:18px">✅</span>
+            Checklist completado — sistemas verificados. Reporte enviado a Telegram.
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CONFIGURACIÓN (IT) ═══ -->
+      <div class="panel" id="p-config">
+        <div class="page-hdr">
+          <div class="page-title">Configuración del sistema</div>
+          <div class="page-sub">Telegram, notificaciones y preferencias</div>
+        </div>
+        <div class="grid2 gap-b">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Bot de Telegram — IT Admin</span></div>
+            <div class="fg fg1" style="gap:12px;margin-bottom:14px">
+              <div class="field">
+                <label>Bot Token</label>
+                <input id="tg-tok" type="password" placeholder="Ingresa tu token (no se guarda en el código)">
+                <div class="field-hint">⚠ El token se borra al recargar la página. Ingrésalo cada sesión.</div>
+              </div>
+              <div class="field">
+                <label>Tu Chat ID</label>
+                <input id="tg-cid" type="text" placeholder="Ej: tu_chat_id_aqui">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-sm tg" onclick="testTG()">Probar conexión</button>
+              <button class="btn-sm" onclick="envResumen()">Enviar resumen ahora</button>
+              <button class="btn-sm" onclick="envCk()">Enviar checklist</button>
+            </div>
+            <div class="msg-bar" id="tg-msg"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Notificaciones activas</span></div>
+            <div class="notif-row"><div class="notif-info"><h4>Nuevo ticket → a ti</h4><p>Recibes alerta en Telegram por cada ticket creado</p></div><span class="badge b-green">Activo</span></div>
+            <div class="notif-row"><div class="notif-info"><h4>Cambio de estado → al usuario</h4><p>El usuario es notificado automáticamente al cambiar estado</p></div><span class="badge b-green">Activo</span></div>
+            <div class="notif-row"><div class="notif-info"><h4>Alerta especial — Crítico</h4><p>Marcado como urgente en el mensaje de Telegram</p></div><span class="badge b-red">Alta prio.</span></div>
+            <div class="notif-row"><div class="notif-info"><h4>Checklist diario</h4><p>Se envía al completar todos los ítems o manualmente</p></div><span class="badge b-cyan">Auto</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PERFIL ═══ -->
+      <div class="panel" id="p-perfil">
+        <div class="page-hdr">
+          <div class="page-title">Mi perfil</div>
+          <div class="page-sub">Información de tu cuenta y preferencias</div>
+        </div>
+        <div class="prof-card" id="prof-card"></div>
+        <div class="grid2 gap-b">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Datos de la cuenta</span></div>
+            <div class="fg fg1" style="gap:12px;margin-bottom:14px">
+              <div class="field"><label>Nombre completo</label><input id="prof-name" type="text"></div>
+              <div class="field"><label>Correo electrónico</label><input id="prof-email" type="email" readonly style="color:var(--t2)"></div>
+              <div class="field"><label>Área / Departamento</label><input id="prof-area" type="text" readonly style="color:var(--t2)"></div>
+            </div>
+            <div class="divider"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Notificaciones</div>
+            <div class="fg fg1" style="gap:12px;margin-bottom:14px">
+              <div class="field">
+                <label>Método de notificación</label>
+                <div class="contact-toggle">
+                  <div class="contact-opt tg" id="prof-tg-opt" onclick="profContact('tg')">Telegram</div>
+                  <div class="contact-opt wa" id="prof-wa-opt" onclick="profContact('wa')">WhatsApp</div>
+                  <div class="contact-opt none" id="prof-none-opt" onclick="profContact('none')">Sin notif.</div>
+                </div>
+              </div>
+              <div class="field"><label>Número / Chat ID</label><input id="prof-contact" type="text" placeholder="Tu Telegram o WhatsApp"></div>
+            </div>
+            <button class="btn-sm primary" onclick="saveProfile()">Guardar cambios</button>
+            <div class="msg-bar" id="prof-msg"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Cambiar contraseña</span></div>
+            <div class="fg fg1" style="gap:12px;margin-bottom:14px">
+              <div class="field"><label>Contraseña actual</label><input id="chp-cur" type="password" placeholder="••••••••"></div>
+              <div class="field"><label>Nueva contraseña</label><input id="chp-new" type="password" placeholder="Mínimo 6 caracteres" oninput="checkPass(this.value,'chp-str')"><div class="pass-strength" id="chp-str"></div></div>
+              <div class="field"><label>Confirmar nueva contraseña</label><input id="chp-conf" type="password" placeholder="Repite la contraseña"></div>
+            </div>
+            <button class="btn-sm primary" onclick="changePass()">Actualizar contraseña</button>
+            <div class="msg-bar" id="chp-msg"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+const BOT = () => document.getElementById('tg-tok')?.value?.trim() || '';
+const CID = () => document.getElementById('tg-cid')?.value?.trim() || '';
+
+let users = [
+  {id:'it-admin', name:'Alberth Crespo', email:'it@sistemas.com', pass:'it2026',
+   area:'IT', role:'it', contact:'', contactMethod:'tg',
+   avatar:'AC', color:'#4f7fff'}
+];
+let tickets = [];
+let ckState = {};
+let currentUser = null;
+let selTkId = null;
+let selUserId = null;
+let attachedFile = null;
+let profContactMethod = 'tg';
+let recoverEmail = '';
+
+const CK_ITEMS = [
+  {id:'c1',g:'Infraestructura',t:'Proxmox VE — VMs y LXC en estado RUNNING. Revisar alertas CPU/RAM/disco (alerta si > 85%).'},
+  {id:'c2',g:'Infraestructura',t:'VM SQL Server — Disponible y respondiendo. Verificar integridad de la BD.'},
+  {id:'c3',g:'Infraestructura',t:'VM Stellar App — Conectada a SQL Server. Módulos de ventas e inventario OK.'},
+  {id:'c4',g:'Red',t:'Firewall Fortinet — G-NETWORK y CANTV activos. Sin failover nocturno activado.'},
+  {id:'c5',g:'Red',t:'WiFi — 11 APs activos. MEZZ (42 usuarios) y PB (28 usuarios) sin alertas.'},
+  {id:'c6',g:'Sistemas',t:'Backup SQL Server — Copia nocturna completada exitosamente en el log.'},
+  {id:'c7',g:'Sistemas',t:'Reporte SQL Inventario — Job ejecutado antes de 07:45 AM sin errores.'},
+  {id:'c8',g:'Operaciones',t:'Cajas POS operativas antes de apertura. Shopify Sync log sin errores.'},
+];
+
+const PRIO_MAP = {
+  'stellar-caja': {p:'Critico',r:'Sistema de caja caído = impacto directo en ventas y atención al cliente'},
+  'red':          {p:'Critico',r:'Red/WiFi caído = toda la operación detenida'},
+  'proxmox':      {p:'Critico',r:'Servidores virtuales = todos los sistemas dependen de esto'},
+  'stellar-inv':  {p:'Alto',r:'Inventario = riesgo en sincronización de ventas y existencias'},
+  'sql':          {p:'Alto',r:'Base de datos = sin reportes ni acceso a información crítica'},
+  'banesco':      {p:'Alto',r:'Punto de venta = clientes no pueden pagar con tarjeta'},
+  'portal':       {p:'Alto',r:'Portales bancarios = afecta conciliaciones y pagos a proveedores'},
+  'stellar-compras':{p:'Medio',r:'Módulo de compras con funcionalidad reducida'},
+  'shopify':      {p:'Medio',r:'Tienda online afectada = pérdida de ventas en canal digital'},
+  'impresora':    {p:'Medio',r:'Comandas manuales como alternativa temporal'},
+  'drive':        {p:'Bajo',r:'Comunicación afectada, sin impacto en operación crítica'},
+  'hardware':     {p:'Bajo',r:'Equipo físico — puede agendarse en horario normal'},
+  'otro':         {p:'Bajo',r:'Requiere evaluación detallada por parte de IT'},
+};
+const PB = {Critico:'b-red',Alto:'b-amber',Medio:'b-blue',Bajo:'b-green'};
+const PE_EMOJI = {Critico:'🔴',Alto:'🟠',Medio:'🟡',Bajo:'🟢'};
+const PE_TXT = {Critico:'🔴 CRITICO — Atención inmediata (<1h)',Alto:'🟠 ALTO — Respuesta rápida (<4h)',Medio:'🟡 MEDIO — 1 día hábil',Bajo:'🟢 BAJO — 3 días hábiles'};
+const EB = {Abierto:'b-amber','En proceso':'b-blue',Resuelto:'b-green',Escalado:'b-red'};
+const AC = ['#4f7fff','#10b981','#f59e0b','#a78bfa','#ef4444','#06b6d4','#1D9E75','#f97316','#8b91b0','#e879f9'];
+const AVATAR_COLORS = ['#4f7fff','#10b981','#f59e0b','#a78bfa','#ef4444','#06b6d4','#f97316','#e879f9'];
+
+// ── HELPERS ─────────────────────────────────────────────────
+function p2(n){return String(n).padStart(2,'0')}
+function now(){const d=new Date();return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`}
+function tid(){return 'TK-'+String(tickets.length+1).padStart(4,'0')}
+function initials(name){return name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}
+function avatarColor(id){return AVATAR_COLORS[users.findIndex(u=>u.id===id)%AVATAR_COLORS.length]||'#4f7fff'}
+function setV(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
+function toast(msg,type='ok'){const e=document.getElementById('toast');e.textContent=msg;e.className=`toast show ${type}`;setTimeout(()=>e.classList.remove('show'),3200)}
+
+function checkPass(v, targetId='pass-str'){
+  const el = document.getElementById(targetId);
+  const hint = document.getElementById('pass-hint');
+  if (!el) return;
+  if (!v) {el.className='pass-strength';if(hint)hint.textContent='';return;}
+  let score = 0;
+  if(v.length>=6) score++;
+  if(v.length>=10) score++;
+  if(/[A-Z]/.test(v)&&/[0-9]/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v)) score++;
+  const labels = ['Muy débil','Débil','Aceptable','Fuerte'];
+  el.className = `pass-strength w${score||1}`;
+  if(hint) hint.textContent = labels[score-1]||'';
+}
+
+function togglePass(inputId, btn){
+  const i = document.getElementById(inputId);
+  if (i.type==='password'){i.type='text';btn.textContent='🙈';}
+  else{i.type='password';btn.textContent='👁';}
+}
+
+// ── AUTH ─────────────────────────────────────────────────────
+let activeAuthTab = 'login';
+
+function authTab(t, el){
+  activeAuthTab = t;
+  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  ['auth-login','auth-register','auth-recover'].forEach(id=>{
+    document.getElementById(id).style.display = id===`auth-${t}` ? 'block':'none';
+  });
+}
+
+let regContactMethod = 'tg';
+function selContact(m, el){
+  regContactMethod = m;
+  document.querySelectorAll('.contact-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  const hints = {tg:'Ingresa tu Chat ID de Telegram (número que ves en getUpdates)',wa:'Ingresa tu número con código de país (+58...)',none:''};
+  document.getElementById('contact-hint').textContent = hints[m]||'';
+  document.getElementById('rg-contact').placeholder = m==='tg'?'Tu Chat ID de Telegram':m==='wa'?'Número WhatsApp (+58...)':'';
+  document.getElementById('rg-contact').style.display = m==='none'?'none':'block';
+}
+
+function doLogin(){
+  const em = document.getElementById('li-email').value.trim();
+  const pw = document.getElementById('li-pass').value;
+  if(!em||!pw){setAMsg('li-msg','Completa todos los campos','err');return;}
+  const u = users.find(x=>x.email.toLowerCase()===em.toLowerCase()&&x.pass===pw);
+  if(!u){setAMsg('li-msg','Correo o contraseña incorrectos','err');return;}
+  if(u.suspended){setAMsg('li-msg','Tu cuenta ha sido suspendida. Contacta a IT.','err');return;}
+  currentUser = u;
+  u.lastLogin = now();
+  startApp();
+}
+
+function doRegister(){
+  const name = document.getElementById('rg-name').value.trim();
+  const email = document.getElementById('rg-email').value.trim();
+  const pass = document.getElementById('rg-pass').value;
+  const area = document.getElementById('rg-area').value;
+  const contact = document.getElementById('rg-contact').value.trim();
+  if(!name||!email||!pass||!area){setAMsg('rg-msg','Completa todos los campos obligatorios (*)','err');return;}
+  if(pass.length<6){setAMsg('rg-msg','La contraseña debe tener al menos 6 caracteres','err');return;}
+  if(users.find(u=>u.email.toLowerCase()===email.toLowerCase())){setAMsg('rg-msg','Este correo ya está registrado en el sistema','err');return;}
+  const idx = users.filter(u=>u.role!=='it').length;
+  const nu = {id:'u'+Date.now(), name, email, pass, area, role:'user', contact,
+    contactMethod:regContactMethod, avatar:initials(name),
+    color:AVATAR_COLORS[idx%AVATAR_COLORS.length], lastLogin:'—', suspended:false};
+  users.push(nu);
+  setAMsg('rg-msg','✓ Cuenta creada exitosamente. Ya puedes iniciar sesión.','ok');
+  updateUsersBadge();
+  setTimeout(()=>{ authTab('login',document.querySelectorAll('.auth-tab')[0]);},1400);
+}
+
+function doRecover(){
+  const em = document.getElementById('rec-email').value.trim();
+  if(!em){setAMsg('rec-msg','Ingresa tu correo electrónico','err');return;}
+  const u = users.find(x=>x.email.toLowerCase()===em.toLowerCase());
+  if(!u){setAMsg('rec-msg','No encontramos ninguna cuenta con ese correo','err');return;}
+  recoverEmail = em;
+  document.getElementById('rec-step1').style.display='none';
+  document.getElementById('rec-step2').style.display='block';
+}
+
+function doResetPass(){
+  const np = document.getElementById('rec-newpass').value;
+  const cp = document.getElementById('rec-confpass').value;
+  if(!np||!cp){setAMsg('rec-msg2','Completa ambos campos','err');return;}
+  if(np.length<6){setAMsg('rec-msg2','La contraseña debe tener al menos 6 caracteres','err');return;}
+  if(np!==cp){setAMsg('rec-msg2','Las contraseñas no coinciden','err');return;}
+  const u = users.find(x=>x.email.toLowerCase()===recoverEmail.toLowerCase());
+  if(u){
+    u.pass=np;
+    setAMsg('rec-msg2','✓ Contraseña actualizada. Ya puedes iniciar sesión.','ok');
+    setTimeout(()=>{
+      document.getElementById('rec-step2').style.display='none';
+      document.getElementById('rec-step1').style.display='block';
+      document.getElementById('rec-email').value='';
+      document.getElementById('rec-newpass').value='';
+      document.getElementById('rec-confpass').value='';
+      recoverEmail='';
+      authTab('login',document.querySelectorAll('.auth-tab')[0]);
+    },1600);
+  }
+}
+
+function setAMsg(id,msg,type){const e=document.getElementById(id);if(e){e.textContent=msg;e.className='auth-msg '+type;}}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app').classList.remove('show');
+  ['li-email','li-pass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('li-msg').textContent='';
+  ckState={};
+}
+
+// ── APP INIT ─────────────────────────────────────────────────
+function startApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  const isIT = currentUser.role==='it';
+  const ini = initials(currentUser.name);
+  const col = avatarColor(currentUser.id);
+
+  document.getElementById('tb-uname').textContent = currentUser.name.split(' ')[0];
+  document.getElementById('tb-role').textContent = isIT?'⚡ IT Admin':'👤 Usuario';
+  document.getElementById('tb-role').className = 'tb-role '+(isIT?'it':'user');
+  document.getElementById('tb-avatar').textContent = ini;
+  document.getElementById('tb-avatar').style.background = col+'22';
+  document.getElementById('tb-avatar').style.color = col;
+  document.getElementById('sb-name').textContent = currentUser.name;
+  document.getElementById('sb-role').textContent = isIT?'IT Administrator':currentUser.area;
+  document.getElementById('sb-avatar').textContent = ini;
+  document.getElementById('sb-avatar').style.background = col+'22';
+  document.getElementById('sb-avatar').style.color = col;
+
+  document.querySelectorAll('.it-only').forEach(e=>e.style.display=isIT?'':'none');
+  document.querySelectorAll('.user-only').forEach(e=>e.style.display=isIT?'none':'');
+  document.getElementById('it-metrics').style.display = isIT?'grid':'none';
+  document.getElementById('user-metrics').style.display = isIT?'none':'grid';
+  document.getElementById('it-charts').style.display = isIT?'grid':'none';
+  document.getElementById('dash-it-btns').style.display = isIT?'flex':'flex';
+
+  const h = new Date().getHours();
+  const g = h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
+  document.getElementById('dash-greet').textContent = `${g}, ${currentUser.name.split(' ')[0]}`;
+  document.getElementById('dash-sub').textContent = isIT?'Panel de control — Vista IT Administrador':`Panel de usuario — ${currentUser.area}`;
+  document.getElementById('recent-lbl').textContent = isIT?'Últimas incidencias':'Mis tickets recientes';
+
+  document.getElementById('f-area').value = currentUser.area;
+  document.getElementById('f-user').value = currentUser.name;
+  document.getElementById('f-notif-disp').value = currentUser.contact
+    ? `${currentUser.contactMethod.toUpperCase()}: ${currentUser.contact}`
+    : 'Sin notificaciones configuradas';
+
+  if(!isIT){
+    document.getElementById('dash-tbl-actions').innerHTML='';
+  } else {
+    document.getElementById('dash-tbl-actions').innerHTML=`<button class="btn-sm tg" onclick="envResumen()">Enviar resumen</button>`;
+  }
+
+  updateUsersBadge();
+  goTo('dash',document.getElementById('ni-dash'));
+  renderCk();
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goTo(id, el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('p-'+id).classList.add('active');
+  if(id==='dash') renderDash();
+  if(id==='bitacora') renderBit();
+  if(id==='usuarios') renderUsers();
+  if(id==='mistickets') renderMyTickets();
+  if(id==='perfil') renderProfile();
+  if(id==='checklist') renderCk();
+}
+
+// ── PRIO CALC ─────────────────────────────────────────────────
+function calcPrio(){
+  const v = document.getElementById('f-sistema').value;
+  const box = document.getElementById('prio-disp');
+  const reason = document.getElementById('prio-reason');
+  if(!v){box.textContent='— Selecciona el sistema arriba —';box.className='prio-box';reason.textContent='';return;}
+  const pm = PRIO_MAP[v]||{p:'Bajo',r:'Requiere evaluación por IT'};
+  const cls = {Critico:'crit',Alto:'alto',Medio:'medio',Bajo:'bajo'};
+  box.textContent = PE_TXT[pm.p];
+  box.className = `prio-box ${cls[pm.p]}`;
+  reason.textContent = '→ '+pm.r;
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────
+function handleDrop(ev){
+  ev.preventDefault();
+  document.getElementById('file-drop').classList.remove('over');
+  if(ev.dataTransfer.files[0]) handleFile(ev.dataTransfer.files[0]);
+}
+function handleFile(f){
+  if(!f) return;
+  if(f.size>5*1024*1024){toast('Archivo demasiado grande (máx 5MB)','err');return;}
+  attachedFile = f;
+  document.getElementById('f-fname').textContent = `${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+  document.getElementById('file-prev').classList.add('show');
+}
+function removeFile(){
+  attachedFile=null;
+  document.getElementById('file-prev').classList.remove('show');
+  document.getElementById('f-file').value='';
+}
+
+// ── TELEGRAM ──────────────────────────────────────────────────
+async function sendTG(chatId, msg){
+  if(!BOT()||!chatId) return false;
+  try{
+    const r = await fetch(`https://api.telegram.org/bot${BOT()}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:chatId,text:msg})
+    });
+    return (await r.json()).ok;
+  }catch(e){return false;}
+}
+
+function buildTicketMsg(t){
+  const isCrit = t.prio==='Critico';
+  return (isCrit?'🚨 TICKET CRITICO — ATENCION INMEDIATA\n':'📋 Nuevo ticket IT\n')+
+    '━━━━━━━━━━━━━━━━━━━━━\n'+
+    `🆔 ${t.id}   📅 ${t.fecha}\n`+
+    `👤 ${t.user} — ${t.area}\n`+
+    `💻 ${t.sistema}\n`+
+    `${PE_EMOJI[t.prio]} Prioridad: ${t.prio}   👥 ${t.impacto}\n`+
+    (t.hasFile?`📎 Evidencia: ${t.fileName}\n`:'')+
+    '━━━━━━━━━━━━━━━━━━━━━\n'+
+    `📝 ${t.desc}\n\n`+
+    `Estado inicial: ABIERTO\n`+
+    `— Alberth Crespo / IT Sistemas`;
+}
+
+function buildStatusMsg(t, st){
+  const e={Abierto:'🟡','En proceso':'🔵',Resuelto:'✅',Escalado:'🔺'};
+  return `${e[st]||'🔔'} Actualización de tu ticket\n`+
+    '━━━━━━━━━━━━━━━━━━━━━\n'+
+    `🆔 ${t.id}\n`+
+    `💻 ${t.sistema}\n`+
+    `Nuevo estado: ${st.toUpperCase()}\n`+
+    (t.sol?`\n✓ Solución aplicada:\n${t.sol}\n`:'')+
+    `\n📅 ${now()}\n`+
+    `— Alberth Crespo / IT Sistemas`;
+}
+
+// ── TICKET CREATION ───────────────────────────────────────────
+async function crearTicket(){
+  const sistema = document.getElementById('f-sistema').value;
+  const desc = document.getElementById('f-desc').value.trim();
+  if(!sistema||!desc){showFMsg('Completa los campos obligatorios: sistema y descripción','err');return;}
+  const pm = PRIO_MAP[sistema]||{p:'Bajo'};
+  const sName = document.getElementById('f-sistema').options[document.getElementById('f-sistema').selectedIndex].text;
+  showFMsg('Generando ticket...','info');
+  const t = {
+    id:tid(), userId:currentUser.id, area:currentUser.area, user:currentUser.name,
+    sistema:sName, sistemaVal:sistema, prio:pm.p, desc,
+    impacto:document.getElementById('f-impacto').value,
+    fecha:now(), estado:'Abierto', sol:'',
+    hasFile:!!attachedFile, fileName:attachedFile?.name||'',
+    timeline:[{estado:'Abierto',fecha:now(),nota:'Ticket creado por el usuario',dot:'done'}]
+  };
+  tickets.unshift(t);
+  updateCounts();
+  const msg = buildTicketMsg(t);
+  document.getElementById('tg-prev').textContent = msg;
+  document.getElementById('tg-prev').classList.add('show');
+  const ok = await sendTG(CID(), msg);
+  showFMsg(ok?`✓ ${t.id} generado y notificado a Sistemas IT`:`✓ ${t.id} creado. (Telegram no configurado — ticket guardado)`,'ok');
+  toast(ok?`${t.id} enviado a Sistemas`:`${t.id} creado`,'ok');
+  renderMyTickets();
+}
+
+function limpiarForm(){
+  document.getElementById('f-sistema').selectedIndex=0;
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-impacto').selectedIndex=0;
+  calcPrio();removeFile();
+  document.getElementById('f-msg').classList.remove('show');
+  document.getElementById('tg-prev').classList.remove('show');
+}
+
+function showFMsg(msg,type){
+  const e=document.getElementById('f-msg');
+  e.textContent=msg;e.className=`msg-bar show ${type}`;
+}
+
+// ── COUNT UPDATE ──────────────────────────────────────────────
+function updateCounts(){
+  const myT = tickets.filter(t=>t.userId===currentUser?.id);
+  const open = tickets.filter(t=>t.estado==='Abierto'||t.estado==='En proceso').length;
+  const crit = tickets.filter(t=>t.prio==='Critico'&&t.estado!=='Resuelto').length;
+  const res  = tickets.filter(t=>t.estado==='Resuelto').length;
+  const myO  = myT.filter(t=>t.estado!=='Resuelto').length;
+  const myR  = myT.filter(t=>t.estado==='Resuelto').length;
+  setV('dm-tot',tickets.length);setV('dm-open',open);setV('dm-crit',crit);setV('dm-res',res);
+  setV('um-tot',myT.length);setV('um-pend',myO);setV('um-res',myR);
+  setV('my-tot',myT.length);setV('my-pend',myO);setV('my-res',myR);
+  const nb=document.getElementById('nb-open');
+  if(open>0){nb.textContent=open;nb.classList.add('show');}else nb.classList.remove('show');
+  const nbm=document.getElementById('nb-mine');
+  if(myO>0){nbm.textContent=myO;nbm.classList.add('show');}else nbm.classList.remove('show');
+}
+
+function updateUsersBadge(){
+  const nonIT = users.filter(u=>u.role!=='it').length;
+  const nb = document.getElementById('nb-users');
+  if(nb){nb.textContent=nonIT;nb.classList.toggle('show',nonIT>0);}
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDash(){
+  updateCounts();
+  const isIT = currentUser?.role==='it';
+  const src = isIT?tickets:tickets.filter(t=>t.userId===currentUser?.id);
+  const areas={};
+  src.forEach(t=>{areas[t.area]=(areas[t.area]||0)+1;});
+  const sorted=Object.entries(areas).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const maxA=sorted.length?sorted[0][1]:1;
+  document.getElementById('ch-area').innerHTML=sorted.length?sorted.map(([a,n],i)=>`
+    <div class="bar-row"><div class="bar-lbl">${a}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxA*100)}%;background:${AC[i%AC.length]}"></div></div>
+    <div class="bar-val">${n}</div></div>`).join(''):'<div class="empty-state" style="padding:20px"><p>Sin datos aún</p></div>';
+  const prios={Critico:0,Alto:0,Medio:0,Bajo:0};
+  src.forEach(t=>{if(prios[t.prio]!==undefined)prios[t.prio]++;});
+  const maxP=Math.max(...Object.values(prios),1);
+  const pC={Critico:'var(--red)',Alto:'var(--amber)',Medio:'var(--ac)',Bajo:'var(--green)'};
+  document.getElementById('ch-prio').innerHTML=Object.entries(prios).map(([p,n])=>`
+    <div class="bar-row"><div class="bar-lbl">${p}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxP*100)}%;background:${pC[p]}"></div></div>
+    <div class="bar-val">${n}</div></div>`).join('');
+  const disp=src.slice(0,6);
+  document.getElementById('dash-recent').innerHTML=disp.length?`
+    <table class="tbl"><thead><tr><th>ID</th><th>Usuario</th><th>Sistema</th><th>Prioridad</th><th>Estado</th><th>Fecha</th></tr></thead>
+    <tbody>${disp.map(t=>`<tr onclick="openFromDash('${t.id}')">
+      <td class="id-cell">${t.id}</td>
+      <td>${t.user}<span style="color:var(--t3)"> / ${t.area}</span></td>
+      <td class="truncate">${t.sistema}</td>
+      <td><span class="badge ${PB[t.prio]}">${t.prio}</span></td>
+      <td><span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--t3)">${t.fecha}</td>
+    </tr>`).join('')}</tbody></table>`
+    :'<div class="empty-state"><div class="ico">📋</div><p>Sin tickets registrados aún</p></div>';
+}
+
+function openFromDash(id){
+  const isIT=currentUser?.role==='it';
+  if(isIT){goTo('bitacora',document.getElementById('ni-bit'));setTimeout(()=>selTk(id),80);}
+  else{goTo('mistickets',document.getElementById('ni-mine'));setTimeout(()=>selMyTk(id),80);}
+}
+
+// ── BITÁCORA ──────────────────────────────────────────────────
+function renderBit(){
+  updateCounts();
+  const fe=document.getElementById('fil-est').value;
+  const fp=document.getElementById('fil-pri').value;
+  const fq=(document.getElementById('bit-search').value||'').toLowerCase();
+  const list=tickets.filter(t=>
+    (!fe||t.estado===fe)&&(!fp||t.prio===fp)&&
+    (!fq||t.id.toLowerCase().includes(fq)||t.user.toLowerCase().includes(fq)||t.sistema.toLowerCase().includes(fq)||t.area.toLowerCase().includes(fq))
+  );
+  const tbody=document.getElementById('tbl-bit');
+  document.getElementById('bit-empty').style.display=list.length?'none':'block';
+  tbody.innerHTML=list.map(t=>`
+    <tr onclick="selTk('${t.id}')" style="${selTkId===t.id?'background:var(--s2)':''}">
+      <td class="id-cell">${t.id}</td>
+      <td>${t.user}<span style="color:var(--t3)"> / ${t.area}</span></td>
+      <td class="truncate">${t.sistema}</td>
+      <td class="truncate" style="color:var(--t2)">${t.desc}</td>
+      <td><span class="badge ${PB[t.prio]}">${t.prio}</span></td>
+      <td><span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--t3);white-space:nowrap">${t.fecha}</td>
+      <td style="text-align:center">${t.hasFile?'📎':'—'}</td>
+    </tr>`).join('');
+}
+
+function selTk(id){
+  selTkId=id;
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  const panel=document.getElementById('det-panel');
+  panel.classList.add('show');
+  document.getElementById('det-id').textContent=t.id;
+  document.getElementById('det-name').textContent=t.sistema+' — '+t.area;
+  document.getElementById('det-desc').textContent=t.desc;
+  const fw=document.getElementById('det-file-wrap');
+  fw.style.display=t.hasFile?'block':'none';
+  if(t.hasFile) document.getElementById('det-fname').textContent=t.fileName;
+  document.getElementById('det-grid').innerHTML=[
+    ['Fecha',t.fecha],['Usuario',t.user],['Área',t.area],
+    ['Impacto',t.impacto],['Prioridad',`<span class="badge ${PB[t.prio]}">${t.prio}</span>`],
+    ['Estado',`<span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span>`]
+  ].map(([l,v])=>`<div class="det-f"><div class="det-fl">${l}</div><div class="det-fv">${v}</div></div>`).join('');
+  document.getElementById('det-actions').innerHTML=
+    ['En proceso','Resuelto','Escalado'].map(s=>
+      `<button class="btn-sm ${s==='Resuelto'?'primary':''}" onclick="chgEst('${id}','${s}')">${s}</button>`
+    ).join('')+
+    `<button class="btn-sm tg" onclick="notifUser('${id}')">Notificar usuario</button>`;
+  const sw=document.getElementById('det-sol-wrap');
+  sw.innerHTML=t.estado==='Resuelto'&&!t.sol
+    ?`<div class="field"><label>Documenta la solución aplicada</label>
+      <textarea id="sol-inp" style="background:var(--s3);border:1px solid var(--bd2);border-radius:var(--rs);padding:10px 13px;color:var(--t1);font-family:var(--font);font-size:13px;width:100%;min-height:65px;resize:vertical" placeholder="Describe cómo resolviste el problema..."></textarea>
+      <button class="btn-sm primary" style="margin-top:8px" onclick="saveSol('${id}')">Guardar solución</button></div>`
+    :t.sol?`<div style="background:var(--gbg2);border:1px solid rgba(16,185,129,.2);border-radius:var(--rs);padding:12px 14px">
+      <div style="font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Solución aplicada</div>
+      <div style="font-size:13px;color:var(--t1)">${t.sol}</div></div>`:'';
+  document.getElementById('det-tg-pre').classList.remove('show');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  renderBit();
+}
+
+function closeDet(){selTkId=null;document.getElementById('det-panel').classList.remove('show');}
+
+async function chgEst(id,est){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  t.estado=est;
+  t.timeline=t.timeline||[];
+  t.timeline.push({estado:est,fecha:now(),nota:`Estado cambiado a "${est}" por IT Sistemas`,dot:est==='Resuelto'?'done':est==='Escalado'?'red':'act'});
+  selTk(id);updateCounts();
+  toast(`${id} → ${est}`,'ok');
+  await notifyUserOnChange(t,est);
+}
+
+async function notifyUserOnChange(t,est){
+  const u=users.find(x=>x.id===t.userId);
+  if(!u||!u.contact||u.contactMethod==='none') return;
+  const msg=buildStatusMsg(t,est);
+  const pre=document.getElementById('det-tg-pre');
+  if(u.contactMethod==='tg'){
+    const ok=await sendTG(u.contact,msg);
+    pre.textContent=`[Telegram enviado a ${u.name} (${u.contact})]\n\n${msg}`;
+    pre.classList.add('show');
+    toast(ok?`Notificado a ${u.name} por Telegram`:`Error al notificar a ${u.name}`,'info');
+  } else if(u.contactMethod==='wa'){
+    const num=u.contact.replace(/\D/g,'');
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`,'_blank');
+    pre.textContent=`[WhatsApp abierto para ${u.name} (${u.contact})]\n\n${msg}`;
+    pre.classList.add('show');
+    toast(`WhatsApp preparado para ${u.name}`,'info');
+  }
+}
+
+async function notifUser(id){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  await notifyUserOnChange(t,t.estado);
+}
+
+function saveSol(id){
+  const v=document.getElementById('sol-inp')?.value?.trim();
+  const t=tickets.find(x=>x.id===id);
+  if(t&&v){
+    t.sol=v;
+    t.timeline=t.timeline||[];
+    t.timeline.push({estado:'Resuelto',fecha:now(),nota:`Solución documentada: ${v}`,dot:'done'});
+    selTk(id);toast('Solución guardada','ok');
+  }
+}
+
+// ── USERS MANAGEMENT (IT) ─────────────────────────────────────
+function renderUsers(){
+  const fq=(document.getElementById('usr-search')?.value||'').toLowerCase();
+  const fa=document.getElementById('usr-filter-area')?.value||'';
+  const nonIT=users.filter(u=>u.role!=='it'&&
+    (!fq||u.name.toLowerCase().includes(fq)||u.email.toLowerCase().includes(fq)||u.area.toLowerCase().includes(fq))&&
+    (!fa||u.area===fa)
+  );
+  const withTk=users.filter(u=>tickets.some(t=>t.userId===u.id)).length;
+  const usTg=users.filter(u=>u.contactMethod==='tg').length;
+  const usWa=users.filter(u=>u.contactMethod==='wa').length;
+  setV('um-count',users.filter(u=>u.role!=='it').length);
+  setV('um-activos',withTk);setV('um-tg',usTg);setV('um-wa',usWa);
+  setV('users-count-lbl',`${nonIT.length} usuario${nonIT.length!==1?'s':''}`);
+  const el=document.getElementById('users-list');
+  if(!nonIT.length){
+    el.innerHTML='<div class="empty-state"><div class="ico">👥</div><p>Sin usuarios registrados</p></div>';return;
+  }
+  el.innerHTML=nonIT.map(u=>{
+    const uTk=tickets.filter(t=>t.userId===u.id);
+    const uOpen=uTk.filter(t=>t.estado!=='Resuelto').length;
+    const col=u.color||'#4f7fff';
+    return `<div class="user-card" onclick="selUser('${u.id}')">
+      <div class="user-avatar" style="background:${col}22;color:${col}">${u.avatar||initials(u.name)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name} ${u.suspended?'<span class="badge b-red" style="font-size:9px">Suspendido</span>':''}</div>
+        <div class="user-meta">${u.area} · ${u.email}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="text-align:right">
+          <div style="font-size:11px;font-family:var(--mono);color:var(--t2)">${uTk.length} ticket${uTk.length!==1?'s':''}</div>
+          ${uOpen>0?`<div style="font-size:10px;color:var(--amber)">${uOpen} abierto${uOpen!==1?'s':''}</div>`:''}
+        </div>
+        <span class="badge ${u.contactMethod==='tg'?'b-blue':u.contactMethod==='wa'?'b-green':'b-gray'}">${u.contactMethod||'—'}</span>
+        <div class="status-dot ${u.suspended?'dot-red':'dot-green'}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selUser(id){
+  selUserId=id;
+  const u=users.find(x=>x.id===id);if(!u)return;
+  const panel=document.getElementById('user-det-panel');
+  panel.classList.add('show');
+  document.getElementById('udet-name').textContent=u.name;
+  document.getElementById('udet-grid').innerHTML=[
+    ['Correo',u.email],['Área',u.area],['Rol',u.role==='it'?'IT Admin':'Usuario'],
+    ['Notificaciones',`${u.contactMethod} ${u.contact?'('+u.contact+')':`(sin configurar)`}`],
+    ['Último acceso',u.lastLogin||'—'],['Estado',u.suspended?'<span class="badge b-red">Suspendido</span>':'<span class="badge b-green">Activo</span>']
+  ].map(([l,v])=>`<div class="det-f"><div class="det-fl">${l}</div><div class="det-fv">${v}</div></div>`).join('');
+  const uTk=tickets.filter(t=>t.userId===u.id);
+  const tbody=document.getElementById('udet-tbl');
+  document.getElementById('udet-empty').style.display=uTk.length?'none':'block';
+  tbody.innerHTML=uTk.map(t=>`<tr>
+    <td class="id-cell">${t.id}</td><td class="truncate">${t.sistema}</td>
+    <td><span class="badge ${PB[t.prio]}">${t.prio}</span></td>
+    <td><span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span></td>
+    <td style="font-family:var(--mono);font-size:10px;color:var(--t3)">${t.fecha}</td>
+  </tr>`).join('');
+  document.getElementById('udet-actions').innerHTML=u.role!=='it'?
+    `<button class="btn-sm ${u.suspended?'primary':'danger'}" onclick="toggleSuspend('${u.id}')">${u.suspended?'Activar cuenta':'Suspender cuenta'}</button>
+     <button class="btn-sm" onclick="resetUserPass('${u.id}')">Restablecer contraseña</button>`:'';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function toggleSuspend(id){
+  const u=users.find(x=>x.id===id);if(!u)return;
+  u.suspended=!u.suspended;
+  selUser(id);renderUsers();
+  toast(u.suspended?`${u.name} suspendido`:`${u.name} reactivado`,u.suspended?'err':'ok');
+}
+
+function resetUserPass(id){
+  const u=users.find(x=>x.id===id);if(!u)return;
+  const np=prompt(`Nueva contraseña para ${u.name}:`);
+  if(np&&np.length>=6){u.pass=np;toast(`Contraseña de ${u.name} actualizada`,'ok');}
+  else if(np) toast('Contraseña muy corta (mín. 6 caracteres)','err');
+}
+
+// ── MY TICKETS (User) ─────────────────────────────────────────
+function renderMyTickets(){
+  updateCounts();
+  const myT=tickets.filter(t=>t.userId===currentUser?.id);
+  const tbody=document.getElementById('my-tbl');
+  document.getElementById('my-empty').style.display=myT.length?'none':'block';
+  tbody.innerHTML=myT.map(t=>`
+    <tr onclick="selMyTk('${t.id}')">
+      <td class="id-cell">${t.id}</td>
+      <td class="truncate">${t.sistema}</td>
+      <td class="truncate" style="color:var(--t2)">${t.desc}</td>
+      <td><span class="badge ${PB[t.prio]}">${t.prio}</span></td>
+      <td><span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--t3)">${t.fecha}</td>
+    </tr>`).join('');
+}
+
+function selMyTk(id){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  const panel=document.getElementById('my-det');panel.classList.add('show');
+  document.getElementById('my-det-id').textContent=t.id;
+  document.getElementById('my-det-name').textContent=t.sistema;
+  document.getElementById('my-det-desc').textContent=t.desc;
+  document.getElementById('my-det-grid').innerHTML=[
+    ['Área',t.area],['Prioridad',`<span class="badge ${PB[t.prio]}">${t.prio}</span>`],
+    ['Impacto',t.impacto],['Estado',`<span class="badge ${EB[t.estado]||'b-gray'}">${t.estado}</span>`],
+    ['Fecha',t.fecha],['Evidencia',t.hasFile?`📎 ${t.fileName}`:'No adjuntada']
+  ].map(([l,v])=>`<div class="det-f"><div class="det-fl">${l}</div><div class="det-fv">${v}</div></div>`).join('');
+  const sw=document.getElementById('my-det-sol');
+  if(t.sol){sw.style.display='block';document.getElementById('my-det-sol-txt').textContent=t.sol;}
+  else sw.style.display='none';
+  const tl=t.timeline||[];
+  document.getElementById('my-tl').innerHTML=tl.map((e,i)=>`
+    <div class="tl-item">
+      <div class="tl-dot ${e.dot||'act'}"></div>
+      <div class="tl-txt">${e.nota}</div>
+      <div class="tl-time">${e.fecha}</div>
+    </div>`).join('');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── PROFILE ───────────────────────────────────────────────────
+function renderProfile(){
+  const u=currentUser;if(!u)return;
+  const col=avatarColor(u.id);
+  const uTk=tickets.filter(t=>t.userId===u.id);
+  document.getElementById('prof-card').innerHTML=`
+    <div class="prof-avatar" style="background:${col}22;color:${col};width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">${u.avatar||initials(u.name)}</div>
+    <div class="prof-info">
+      <div class="prof-name">${u.name}</div>
+      <div class="prof-meta">${u.email} · ${u.area}</div>
+      <div class="prof-badges">
+        <span class="badge ${u.role==='it'?'b-blue':'b-green'}">${u.role==='it'?'IT Admin':'Usuario'}</span>
+        <span class="badge b-gray">${uTk.length} ticket${uTk.length!==1?'s':''}</span>
+        <span class="badge b-gray">Último acceso: ${u.lastLogin||'—'}</span>
+      </div>
+    </div>`;
+  document.getElementById('prof-name').value=u.name;
+  document.getElementById('prof-email').value=u.email;
+  document.getElementById('prof-area').value=u.area;
+  document.getElementById('prof-contact').value=u.contact||'';
+  profContactMethod=u.contactMethod||'tg';
+  ['tg','wa','none'].forEach(m=>{
+    const el=document.getElementById(`prof-${m}-opt`);
+    if(el) el.classList.toggle('active',m===profContactMethod);
+  });
+}
+
+function profContact(m){
+  profContactMethod=m;
+  ['tg','wa','none'].forEach(x=>{
+    const el=document.getElementById(`prof-${x}-opt`);
+    if(el){el.classList.remove('active');if(x===m)el.classList.add('active');}
+  });
+}
+
+function saveProfile(){
+  const name=document.getElementById('prof-name').value.trim();
+  const contact=document.getElementById('prof-contact').value.trim();
+  if(!name){showMsg('prof-msg','El nombre no puede estar vacío','err');return;}
+  currentUser.name=name;
+  currentUser.contact=contact;
+  currentUser.contactMethod=profContactMethod;
+  currentUser.avatar=initials(name);
+  document.getElementById('tb-uname').textContent=name.split(' ')[0];
+  document.getElementById('sb-name').textContent=name;
+  document.getElementById('tb-avatar').textContent=initials(name);
+  document.getElementById('sb-avatar').textContent=initials(name);
+  document.getElementById('f-user').value=name;
+  const notifDisp=document.getElementById('f-notif-disp');
+  if(notifDisp) notifDisp.value=contact?`${profContactMethod.toUpperCase()}: ${contact}`:'Sin notificaciones configuradas';
+  renderProfile();
+  showMsg('prof-msg','✓ Perfil actualizado correctamente','ok');
+  toast('Perfil guardado','ok');
+}
+
+function changePass(){
+  const cur=document.getElementById('chp-cur').value;
+  const np=document.getElementById('chp-new').value;
+  const cp=document.getElementById('chp-conf').value;
+  if(!cur||!np||!cp){showMsg('chp-msg','Completa todos los campos','err');return;}
+  if(currentUser.pass!==cur){showMsg('chp-msg','La contraseña actual es incorrecta','err');return;}
+  if(np.length<6){showMsg('chp-msg','La nueva contraseña debe tener al menos 6 caracteres','err');return;}
+  if(np!==cp){showMsg('chp-msg','Las contraseñas no coinciden','err');return;}
+  currentUser.pass=np;
+  ['chp-cur','chp-new','chp-conf'].forEach(id=>document.getElementById(id).value='');
+  showMsg('chp-msg','✓ Contraseña actualizada correctamente','ok');
+  toast('Contraseña cambiada','ok');
+}
+
+function showMsg(id,msg,type){const e=document.getElementById(id);if(e){e.textContent=msg;e.className=`msg-bar show ${type}`;}}
+
+// ── CHECKLIST ─────────────────────────────────────────────────
+function renderCk(){
+  const done=Object.values(ckState).filter(Boolean).length;
+  setV('ck-prog',`${done} / ${CK_ITEMS.length}`);
+  document.getElementById('ck-grid').innerHTML=CK_ITEMS.map(item=>`
+    <div class="ck-item ${ckState[item.id]?'done':''}" onclick="togCk('${item.id}')">
+      <input type="checkbox" ${ckState[item.id]?'checked':''} onclick="event.stopPropagation();togCk('${item.id}')">
+      <div><div class="ck-g">${item.g}</div><div class="ck-t">${item.t}</div></div>
+    </div>`).join('');
+  const bar=document.getElementById('ck-done');
+  bar.classList.toggle('show',done===CK_ITEMS.length);
+}
+
+function togCk(id){
+  ckState[id]=!ckState[id];renderCk();
+  if(Object.values(ckState).filter(Boolean).length===CK_ITEMS.length) envCk();
+}
+
+function resetCk(){ckState={};document.getElementById('ck-done').classList.remove('show');renderCk();}
+
+async function envCk(){
+  const done=CK_ITEMS.filter(i=>ckState[i.id]).length;
+  let msg=`✅ CHECKLIST OPERATIVO IT\n${now()}\n━━━━━━━━━━━━━━━━━\n`;
+  msg+=`Completado: ${done}/${CK_ITEMS.length}\n\n`;
+  CK_ITEMS.forEach(i=>{msg+=`${ckState[i.id]?'✅':'❌'} [${i.g}] ${i.t.substring(0,55)}\n`;});
+  if(done===CK_ITEMS.length) msg+=`\n✓ Todos los sistemas verificados. Operaciones listas.\n`;
+  msg+=`\n— Alberth Crespo / IT`;
+  const ok=await sendTG(CID(),msg);
+  toast(ok?'Checklist enviado a Telegram':'Checklist guardado (Telegram sin configurar)',ok?'ok':'info');
+}
+
+// ── TELEGRAM ─────────────────────────────────────────────────
+async function envResumen(){
+  if(!tickets.length){toast('Sin tickets para enviar','err');return;}
+  const open=tickets.filter(t=>t.estado==='Abierto'||t.estado==='En proceso');
+  const crit=tickets.filter(t=>t.prio==='Critico'&&t.estado!=='Resuelto');
+  const res=tickets.filter(t=>t.estado==='Resuelto');
+  let msg=`📊 RESUMEN BITACORA IT\n${now()}\n━━━━━━━━━━━━━━━━━\n`;
+  msg+=`Total: ${tickets.length} | Abiertos: ${open.length} | Resueltos: ${res.length} | Críticos: ${crit.length}\n`;
+  msg+=`Usuarios registrados: ${users.filter(u=>u.role!=='it').length}\n\n`;
+  if(crit.length){msg+=`🚨 CRITICOS ACTIVOS:\n`;crit.forEach(t=>{msg+=`• ${t.id} — ${t.sistema} (${t.area})\n`;}); msg+='\n';}
+  if(open.slice(0,5).length){msg+=`⚠️ EN CURSO:\n`;open.slice(0,5).forEach(t=>{msg+=`• ${t.id} — ${t.area}: ${t.desc.substring(0,40)}...\n`;});}
+  msg+=`\n— Alberth Crespo / IT Sistemas`;
+  const ok=await sendTG(CID(),msg);
+  toast(ok?'Resumen enviado a Telegram':'Error al enviar (configura Telegram)',ok?'ok':'err');
+}
+
+async function testTG(){
+  const el=document.getElementById('tg-msg');
+  el.textContent='Probando conexión...';el.className='msg-bar show info';
+  const ok=await sendTG(CID(),`🤖 Bot IT Helpdesk conectado\n${now()}\nHola Alberth, el sistema está operativo.\n— IT Sistemas`);
+  el.textContent=ok?'✓ Conexión exitosa. Revisa tu Telegram.':'✗ Error. Verifica el token y el Chat ID.';
+  el.className=`msg-bar show ${ok?'ok':'err'}`;
+  toast(ok?'Bot conectado correctamente':'Error de conexión',ok?'ok':'err');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderCk();
+</script>
+</body>
+</html>
